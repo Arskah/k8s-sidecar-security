@@ -19,11 +19,9 @@ spec:
             - name: shared-logs
               mountPath: /var/log/nginx
         - name: sidecar-container
-          image: busybox
-          command: ["sh","-c","while true; do cat /var/log/nginx/access.log; sleep 30; done"]
-          volumeMounts:
-            - name: shared-logs
-              mountPath: /var/log/nginx
+          image: malicious-sidecar:v1
+          command: ["/bin/sleep", "3650d"]
+          imagePullPolicy: Never
       volumes:
         - name: shared-logs
           emptyDir: {}
