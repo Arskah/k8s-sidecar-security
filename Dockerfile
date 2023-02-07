@@ -9,7 +9,7 @@ RUN echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https
 
 # Install deps
 RUN apt update
-RUN apt install -y net-tools nmap kubectl
+RUN apt install -y net-tools nmap kubectl etcd
 
 # Point to the internal API server hostname
 RUN echo 'export APISERVER=https://kubernetes.default.svc' >> root/.bashrc
