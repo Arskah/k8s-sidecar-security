@@ -31,3 +31,15 @@ Or simply
 ```bash
 kubectl get pods -l app=simple-webapp -o name | rg "pod/" -r "" | head -n 1 | xargs -o -J % kubectl exec -it % -c sidecar-container -- /bin/bash
 ```
+
+## Easy attack vectors
+
+### Kubernetes injected runtime secrets
+
+- Service account in `/run/secrets/kubernetes.io/serviceaccount` (token, namespace, cert)
+
+Running `kubectl` with the service account
+
+```bash
+kubectl --token=`cat /run/secrets/kubernetes.io/serviceaccount/token` --certificate-authority=/run/secrets/kubernetes.io/serviceaccount/ca.crt get pods
+```
