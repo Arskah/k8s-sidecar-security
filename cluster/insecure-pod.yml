@@ -22,12 +22,20 @@ spec:
           image: malicious-sidecar
           command: ["/bin/sleep", "3650d"]
           imagePullPolicy: Never # Trying to pull image causes ImagePullBackOff
+          envFrom:
+          - configMapRef:
+              name: simple-webapp-config-map
           volumeMounts:
             - name: shared-logs
               mountPath: /main-logs
+            - name: secrets
+              mountPath: /data/secret
       volumes:
         - name: shared-logs
           emptyDir: {}
+        - name: secrets
+          secret:
+            secretName: simple-webapp-secret
 status: {}
 ---
 apiVersion: v1
