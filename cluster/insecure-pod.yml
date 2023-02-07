@@ -31,6 +31,21 @@ spec:
 status: {}
 ---
 apiVersion: v1
+kind: ConfigMap
+data:
+  CONFIG_OBJECT: CONFIG_MAP_OBJECT
+metadata:
+  name: simple-webapp-config-map
+---
+apiVersion: v1
+kind: Secret
+data:
+  secret: eyAicGFzc3dvcmQiOiAibm90LXNhZmUtd2l0aC1iYXNlNjQifQ==
+metadata:
+  name: simple-webapp-secret
+type: Opaque
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: simple-webapp
