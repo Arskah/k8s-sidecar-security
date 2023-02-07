@@ -2,10 +2,10 @@
 
 ## Setup
 
-- Build the sidecar. We need to add tag, since K8s wants to always pull images with latest tag.
+- Build the sidecar
 
 ```bash
-docker build . -t malicious-sidecar:v1
+docker build . -t malicious-sidecar
 ```
 
 - Setup the cluser

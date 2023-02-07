@@ -19,9 +19,9 @@ spec:
             - name: shared-logs
               mountPath: /var/log/nginx
         - name: sidecar-container
-          image: malicious-sidecar:v1
+          image: malicious-sidecar
           command: ["/bin/sleep", "3650d"]
-          imagePullPolicy: Never
+          imagePullPolicy: Never # Trying to pull image causes ImagePullBackOff
       volumes:
         - name: shared-logs
           emptyDir: {}
