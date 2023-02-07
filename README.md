@@ -41,5 +41,5 @@ kubectl get pods -l app=simple-webapp -o name | rg "pod/" -r "" | head -n 1 | xa
 Running `kubectl` with the service account
 
 ```bash
-kubectl --token=`cat /run/secrets/kubernetes.io/serviceaccount/token` --certificate-authority=/run/secrets/kubernetes.io/serviceaccount/ca.crt get pods
+kubectl --token=`cat /run/secrets/kubernetes.io/serviceaccount/token` --certificate-authority=/run/secrets/kubernetes.io/serviceaccount/ca.crt --server=https://192.168.65.4:6443 get pods
 ```
