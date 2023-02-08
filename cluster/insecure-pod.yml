@@ -12,6 +12,10 @@ spec:
       labels:
         app: simple-webapp
     spec:
+      hostNetwork: true # attack vector
+      hostPID: true # attack vector
+      hostIPC: true # attack vector
+      # nodeName: k8s-control-plane-node # Force your pod to run on the control-plane node by uncommenting this line and changing to a control-plane node name
       containers:
         - name: main-application
           image: nginx
@@ -21,21 +25,21 @@ spec:
         - name: sidecar-container
           image: malicious-sidecar
           command: ["/bin/sleep", "3650d"]
-          imagePullPolicy: Never # Trying to pull image causes ImagePullBackOff
-          envFrom:
-          - configMapRef:
-              name: simple-webapp-config-map
+          imagePullPolicy: Never # Trying to pull local image causes ImagePullBackOff
+          securityContext:
+            privileged: true # attack vector
           volumeMounts:
-            - name: shared-logs
-              mountPath: /main-logs
-            - name: secrets
-              mountPath: /data/secret
+            - name: host-root
+              mountPath: /host-root
       volumes:
         - name: shared-logs
           emptyDir: {}
         - name: secrets
           secret:
             secretName: simple-webapp-secret
+        - name: host-root # attack vector
+          hostPath:
+            path: /
 status: {}
 ---
 apiVersion: v1
