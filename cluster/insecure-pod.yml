@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: simple-webapp
+  namespace: simple-webapp-ns
 spec:
   replicas: 1
   selector:
@@ -12,10 +13,11 @@ spec:
       labels:
         app: simple-webapp
     spec:
-      hostNetwork: true # attack vector
-      hostPID: true # attack vector
-      hostIPC: true # attack vector
+      # hostNetwork: true # attack vector
+      # hostPID: true # attack vector
+      # hostIPC: true # attack vector
       # nodeName: k8s-control-plane-node # Force your pod to run on the control-plane node by uncommenting this line and changing to a control-plane node name
+      serviceAccountName: simple-webapp-sa
       containers:
         - name: main-application
           image: nginx
@@ -48,6 +50,7 @@ data:
   CONFIG_OBJECT: CONFIG_MAP_OBJECT
 metadata:
   name: simple-webapp-config-map
+  namespace: simple-webapp-ns
 ---
 apiVersion: v1
 kind: Secret
@@ -55,12 +58,14 @@ data:
   secret: eyAicGFzc3dvcmQiOiAibm90LXNhZmUtd2l0aC1iYXNlNjQifQ==
 metadata:
   name: simple-webapp-secret
+  namespace: simple-webapp-ns
 type: Opaque
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: simple-webapp
+  namespace: simple-webapp-ns
 spec:
   ports:
   - port: 80
