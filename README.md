@@ -1,6 +1,15 @@
 # Attacking cluster from malicious sidecar
 
-## Setup
+## Minikube setup
+
+- Install minikube
+- Start with network plugin
+
+```bash
+minikube start --network-plugin=cni --cni=calico
+```
+
+## Cluster setup
 
 - Build the sidecar
 

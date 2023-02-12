@@ -13,9 +13,9 @@ spec:
       labels:
         app: simple-webapp
     spec:
-      # hostNetwork: true # attack vector
-      # hostPID: true # attack vector
-      # hostIPC: true # attack vector
+      # hostNetwork: true # attack vector: asks to use the host’s network (exiting isolation)
+      # hostPID: true # attack vector: asks to not be put in a Linux namespace (exiting isolation)
+      # hostIPC: true # attack vector: asks to use the host’s ipc namespace (exiting isolation)
       # nodeName: k8s-control-plane-node # Force your pod to run on the control-plane node by uncommenting this line and changing to a control-plane node name
       serviceAccountName: simple-webapp-sa
       containers:
