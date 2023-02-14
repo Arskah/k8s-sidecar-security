@@ -1,0 +1,66 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: simple-webapp-ns
+spec:
+  podSelector:
+    matchLabels: {} # empty selects all pods
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-for-simple-webapp
+  namespace: simple-webapp-ns
+spec:
+  podSelector:
+    matchLabels:
+      app: simple-webapp
+  policyTypes:
+    - Egress
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: UDP
+      port: 1053
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-external
+  namespace: simple-webapp-ns
+spec:
+  podSelector:
+    matchLabels:
+      app: simple-webapp
+  ingress:
+  - from: []
+    ports:
+      - protocol: TCP
+        port: 443
+      - protocol: TCP
+        port: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: simple-webapp-network-policy
+  namespace: simple-webapp-ns
+spec:
+  podSelector:
+    matchLabels:
+      app: simple-webapp
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: simple-webapp
+      ports:
+        - port: 6666 # Just demoing here, we could assume that sidecar gathers instrumentation to this port

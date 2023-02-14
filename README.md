@@ -41,6 +41,22 @@ Or simply
 kubectl get pods -l app=simple-webapp -o name | rg "pod/" -r "" | head -n 1 | xargs -o -J % kubectl exec -it % -c sidecar-container -- /bin/bash
 ```
 
+## Cluster models
+
+### Insecure cluster
+
+- Pod-level service account
+- No admission control
+- Shared network interface (localhost), unblockable with NetworkPolicy
+  - Kubernetes constraint, Pod is the lowest security boundary
+  - Blocking this requires manual tweaking
+
+### Secure cluster
+
+- Automatic mounting of service account disabled, mount only where needed (or automatic default which has no permission, mount more priviledged SA where needed)
+- Admission control to prevent MutatingWebhooks causing misconfigurations (automatic tools like `istioctl` use these, malicious installation could force priviledged containers?)
+- Calico to block localhost ports? (network isolation)
+
 ## Attack vectors
 
 ### Kubernetes service account
