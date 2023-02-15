@@ -2,7 +2,7 @@
 # kind: NetworkPolicy
 # metadata:
 #   name: default-deny-all
-#   namespace: simple-webapp-ns
+#   namespace: insecure-ns
 # spec:
 #   podSelector:
 #     matchLabels: {} # empty selects all pods
@@ -11,7 +11,7 @@
 # kind: NetworkPolicy
 # metadata:
 #   name: allow-dns-for-simple-webapp
-#   namespace: simple-webapp-ns
+#   namespace: insecure-ns
 # spec:
 #   podSelector:
 #     matchLabels:
@@ -33,7 +33,7 @@
 # kind: NetworkPolicy
 # metadata:
 #   name: allow-external
-#   namespace: simple-webapp-ns
+#   namespace: insecure-ns
 # spec:
 #   podSelector:
 #     matchLabels:
@@ -50,7 +50,7 @@
 # kind: NetworkPolicy
 # metadata:
 #   name: simple-webapp-network-policy
-#   namespace: simple-webapp-ns
+#   namespace: insecure-ns
 # spec:
 #   podSelector:
 #     matchLabels:

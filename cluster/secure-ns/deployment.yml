@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-webapp
+  namespace: secure-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simple-webapp
+  template:
+    metadata:
+      labels:
+        app: simple-webapp
+    spec:
+      # hostNetwork: true # attack vector: asks to use the host’s network (exiting isolation)
+      # hostPID: true # attack vector: asks to not be put in a Linux namespace (exiting isolation)
+      # hostIPC: true # attack vector: asks to use the host’s ipc namespace (exiting isolation)
+      # nodeName: k8s-control-plane-node # Force your pod to run on the control-plane node by uncommenting this line and changing to a control-plane node name
+      serviceAccountName: simple-webapp-sa
+      containers:
+        - name: main-application
+          image: nginx
+          volumeMounts:
+            - name: shared-logs
+              mountPath: /var/log/nginx
+        - name: sidecar-container
+          image: malicious-sidecar
+          command: ["/bin/sleep", "3650d"]
+          imagePullPolicy: Never # Trying to pull local image causes ImagePullBackOff
+          securityContext:
+            # privileged: true # attack vector
+          # volumeMounts:
+          #   - name: host-root
+          #     mountPath: /host-root
+      volumes:
+        - name: shared-logs
+          emptyDir: {}
+        - name: secrets
+          secret:
+            secretName: simple-webapp-secret
+        # - name: host-root # attack vector
+        #   hostPath:
+        #     path: /
+status: {}
+---
+apiVersion: v1
+kind: ConfigMap
+data:
+  CONFIG_OBJECT: CONFIG_MAP_OBJECT
+metadata:
+  name: simple-webapp-config-map
+  namespace: secure-ns
+---
+apiVersion: v1
+kind: Secret
+data:
+  secret: eyAicGFzc3dvcmQiOiAibm90LXNhZmUtd2l0aC1iYXNlNjQifQ==
+metadata:
+  name: simple-webapp-secret
+  namespace: secure-ns
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simple-webapp
+  namespace: secure-ns
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    app: simple-webapp
+  type: NodePort

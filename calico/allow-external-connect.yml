@@ -2,7 +2,7 @@ apiVersion: projectcalico.org/v3
 kind: NetworkPolicy
 metadata:
   name: allow-tcp-80
-  namespace: simple-webapp-ns
+  namespace: secure-ns
 spec:
   selector: app == 'simple-webapp'
   ingress:
