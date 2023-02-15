@@ -1,0 +1,13 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-tcp-80
+  namespace: simple-webapp-ns
+spec:
+  selector: app == 'simple-webapp'
+  ingress:
+    - action: Allow
+      protocol: TCP
+      destination:
+        ports:
+          - 80

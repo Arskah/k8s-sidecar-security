@@ -1,0 +1,7 @@
+apiVersion: projectcalico.org/v3
+kind: HostEndpoint
+metadata:
+  name: minikube-m02-ifs
+spec:
+  interfaceName: '*'
+  node: minikube-m02

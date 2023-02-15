@@ -1,0 +1,73 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: default-deny-all-policy
+spec:
+  namespaceSelector: has(projectcalico.org/name) && projectcalico.org/name not in {"kube-system", "calico-system", "calico-apiserver"}
+  types:
+  - Ingress
+  - Egress
+  egress:
+  # Allow all namespaces to communicate to DNS pods
+  - action: Allow
+    protocol: UDP
+    destination:
+      selector: 'k8s-app == "kube-dns"'
+      ports:
+      - 53
+      - 67
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: allow-ping-and-etcd
+spec:
+  selector: has(kubernetes-host)
+  order: 0
+  ingress:
+    # - action: Allow # no management instance, no need for ssh rule
+    #   protocol: TCP
+    #   source:
+    #     nets:
+    #       - '<your management CIDR>'
+    #   destination:
+    #     ports: [22]
+    - action: Allow
+      protocol: ICMP
+  egress:
+    - action: Allow
+      protocol: TCP
+      destination:
+        nets:
+          - '192.168.49.2/32' # etcd
+        ports: [2379]
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: allow-masters-kubelet
+spec:
+  selector: has(kubernetes-host)
+  order: 1
+  ingress:
+  # Allow only the masters access to the nodes kubelet API.
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: has(node-role.kubernetes.io/master)
+    destination:
+      ports:
+      - 10250
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: block-localhost
+spec:
+  selector: has(kubernetes-host)
+  order: 100
+  ingress:
+  - action: Deny
+    destination:
+      nets:
+      - 127.0.0.0/8

@@ -4,9 +4,15 @@
 
 - Install minikube
 - Start with network plugin
+- Add worker node, for isolation of control and data planes
+- Add label for kube-system
+- Label all hosts for Calico
 
 ```bash
 minikube start --network-plugin=cni --cni=calico
+minikube node add
+kubectl label namespace kube-system name=kube-system
+kubectl label nodes --all kubernetes-host=
 ```
 
 ## Cluster setup
