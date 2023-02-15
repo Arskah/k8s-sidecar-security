@@ -11,6 +11,7 @@
 ```bash
 minikube start --network-plugin=cni --cni=calico
 minikube node add
+kubectl label node minikube-m02 node-role.kubernetes.io/worker=worker
 kubectl label namespace kube-system name=kube-system
 kubectl label nodes --all kubernetes-host=
 ```

@@ -13,35 +13,59 @@ spec:
       labels:
         app: simple-webapp
     spec:
-      # hostNetwork: true # attack vector: asks to use the host’s network (exiting isolation)
-      # hostPID: true # attack vector: asks to not be put in a Linux namespace (exiting isolation)
-      # hostIPC: true # attack vector: asks to use the host’s ipc namespace (exiting isolation)
-      # nodeName: k8s-control-plane-node # Force your pod to run on the control-plane node by uncommenting this line and changing to a control-plane node name
-      serviceAccountName: simple-webapp-sa
+      automountServiceAccountToken: false
       containers:
         - name: main-application
-          image: nginx
+          image: nginx # use digest
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 1001
+            runAsGroup: 1001
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
           volumeMounts:
+            - name: cache-volume
+              mountPath: /var/cache/nginx
+            - name: pid-volume
+              mountPath: /var/run
             - name: shared-logs
               mountPath: /var/log/nginx
+          resources:
+            limits:
+              cpu: 2
+              memory: 2048Mi
         - name: sidecar-container
           image: malicious-sidecar
           command: ["/bin/sleep", "3650d"]
           imagePullPolicy: Never # Trying to pull local image causes ImagePullBackOff
           securityContext:
-            # privileged: true # attack vector
-          # volumeMounts:
-          #   - name: host-root
-          #     mountPath: /host-root
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 2000
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            limits:
+              cpu: 1
+              memory: 1024Mi
       volumes:
+        - name: cache-volume # required for Nginx cache (container fails without these, worked for insecure-ns since filesystem was not read-only)
+          emptyDir: {}
+        - name: pid-volume
         - name: shared-logs
           emptyDir: {}
         - name: secrets
           secret:
             secretName: simple-webapp-secret
-        # - name: host-root # attack vector
-        #   hostPath:
-        #     path: /
 status: {}
 ---
 apiVersion: v1
