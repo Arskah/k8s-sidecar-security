@@ -1,3 +1,4 @@
+# Default deny
 apiVersion: projectcalico.org/v3
 kind: GlobalNetworkPolicy
 metadata:
@@ -8,68 +9,15 @@ spec:
   - Ingress
   - Egress
   egress:
-  # allow all namespaces to communicate to DNS pods
+  # Allow all namespaces to communicate to DNS pods
   - action: Allow
     protocol: UDP
     destination:
       selector: 'k8s-app == "kube-dns"'
       ports:
       - 53
----
-apiVersion: projectcalico.org/v3
-kind: GlobalNetworkPolicy
-metadata:
-  name: ingress-k8s-masters
-spec:
-  selector: has(node-role.kubernetes.io/master)
   ingress:
-  # This rule allows ingress to the Kubernetes API server.
-  - action: Allow
-    protocol: TCP
-    destination:
-      ports:
-      - 6443
-  # This rule allows coredns to forward dns requests back through
-  # through the master node in the case where your gateway is
-  # colocated with the Kubernetes master
-  - action: Allow
-    protocol: UDP
-    destination:
-      ports:
-      - 53
-  # This rule is required in multi-master clusters where etcd pods are colocated with the masters.
-  # Allow the etcd pods on the masters to communicate with each other. 2380 is the etcd peer port.
-  # This rule also allows the masters to access the kubelet API on other masters (including itself).
-  - action: Allow
-    protocol: TCP
-    source:
-      selector: has(node-role.kubernetes.io/master)
-    destination:
-      ports:
-      - 2380
-      - 10250
-  # This rule allows all traffic to localhost.
-  - action: Allow
-    destination:
-      nets:
-      - 127.0.0.1/32
----
-apiVersion: projectcalico.org/v3
-kind: GlobalNetworkPolicy
-metadata:
-  name: ingress-k8s-workers
-spec:
-  selector: has(kubernetes-worker)
-  ingress:
-  # Allow only the masters access to the nodes kubelet API.
-  - action: Allow
-    protocol: TCP
-    source:
-      selector: has(node-role.kubernetes.io/master)
-    destination:
-      ports:
-      - 10250
-  # This rule allows coredns to forward dns requests back through
+  # This rule allows coredns to forward dns requests back
   # through the worker node in the case where your gateway is
   # colocated with the Kubernetes master
   - action: Allow
@@ -77,39 +25,68 @@ spec:
     destination:
       ports:
       - 53
-  # Allow all traffic to localhost.
+---
+# Allow ping on all nodes
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: allow-ping
+spec:
+  selector: has(kubernetes-host)
+  ingress:
+    - action: Allow
+      protocol: ICMP
+---
+# Control plane
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: ingress-k8s-control-plane
+spec:
+  selector: has(node-role.kubernetes.io/control-plane)
+  ingress:
+  # This rule allows ingress to the Kubernetes API server.
   - action: Allow
+    protocol: TCP
     destination:
-      nets:
-      - 127.0.0.1/32
+      ports:
+      # - 6443
+      - 8443 # Minikube defaults to this port
+  # This rule is required in multi-master clusters where etcd pods are colocated with the masters.
+  # Allow the etcd pods on the masters to communicate with each other. 2380 is the etcd peer port.
+  # This rule also allows the masters to access the kubelet API on other masters (including itself).
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: has(node-role.kubernetes.io/control-plane)
+    destination:
+      ports:
+      - 2380
+      - 10250
+  # This rule allows all traffic to localhost.
+  # - action: Allow
+  #   destination:
+  #     nets:
+  #     - 127.0.0.0/8
 ---
 apiVersion: projectcalico.org/v3
 kind: GlobalNetworkPolicy
 metadata:
-  name: allow-ping-and-ssh
+  name: ingress-k8s-workers
 spec:
-  selector: has(kubernetes-host)
+  selector: has(node-role.kubernetes.io/worker)
   ingress:
-    # Allow SSH traffic to management instance
-    # - action: Allow
-    #   protocol: TCP
-    #   source:
-    #     nets:
-    #       - '<your management CIDR>'
-    #   destination:
-    #     ports: [22]
-    - action: Allow
-      protocol: ICMP
----
-# apiVersion: projectcalico.org/v3
-# kind: GlobalNetworkPolicy
-# metadata:
-#   name: block-localhost
-# spec:
-#   selector: has(kubernetes-host)
-#   order: 100
-#   ingress:
-#   - action: Deny
-#     destination:
-#       nets:
-#       - 127.0.0.0/8
+  # Kubelet API
+  - action: Allow
+    protocol: TCP
+    # Allow only control-plane to access to node's Kubelet.
+    source:
+      selector: has(node-role.kubernetes.io/control-plane)
+    destination:
+      ports:
+      - 10250
+  # # Allow all traffic to localhost.
+  # - action: Allow
+  #   destination:
+  #     nets:
+  #     - 127.0.0.0/8

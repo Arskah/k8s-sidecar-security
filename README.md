@@ -7,14 +7,15 @@
 - Add worker node, for isolation of control and data planes
 - Add label for kube-system
 - Label all hosts for Calico
+- Set automatic Calico endpoints
 
 ```bash
 minikube start --network-plugin=cni --cni=calico
 minikube node add
-kubectl label nodes minikube node-role.kubernetes.io/master=
-kubectl get node -l '!node-role.kubernetes.io/master' -o custom-columns=NAME:.metadata.name | tail -n +2 | xargs -I{} kubectl label node {} kubernetes-worker=
+kubectl get node -l '!node-role.kubernetes.io/control-plane' -o custom-columns=NAME:.metadata.name | tail -n +2 | xargs -I{} kubectl label nodes {} kubernetes-worker= node-role.kubernetes.io/worker=
 kubectl label namespace kube-system name=kube-system
 kubectl label nodes --all kubernetes-host=
+calicoctl patch kubecontrollersconfiguration default --patch='{"spec": {"controllers": {"node": {"hostEndpoint": {"autoCreate": "Enabled"}}}}}'
 ```
 
 ## Cluster setup
@@ -23,18 +24,19 @@ kubectl label nodes --all kubernetes-host=
 
 ```bash
 docker build . -t malicious-sidecar
+minikube image load malicious-sidecar
 ```
 
 - Setup the cluser
 
 ```bash
-kubectl apply -f cluster/
+kubectl apply -f cluster/insecure-ns
 ```
 
 - Check pods are healthy with
 
 ```bash
-kubectl get pods
+kubectl get -A pods
 ```
 
 - Jump to sidecar terminal with
@@ -46,7 +48,14 @@ kubectl exec --stdin --tty <insert-pod-name> -c sidecar-container -- /bin/bash
 Or simply
 
 ```bash
-kubectl get pods -l app=simple-webapp -o name | rg "pod/" -r "" | head -n 1 | xargs -o -J % kubectl exec -it % -c sidecar-container -- /bin/bash
+NAMESPACE=insecure-ns && kubectl get pods -n $NAMESPACE -l app=simple-webapp -o name | rg "pod/" -r "" | head -n 1 | xargs -o -J % kubectl exec -n $NAMESPACE -it % -c sidecar-container -- /bin/bash
+```
+
+- Test connectivity to Nginx
+
+```bash
+kubectl port-forward -n $NAMESPACE service/simple-webapp 8080:80
+
 ```
 
 ## Cluster models
