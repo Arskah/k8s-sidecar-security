@@ -1,6 +1,13 @@
 apiVersion: v1
 kind: Namespace
 metadata:
+  name: insecure-ns
+  labels:
+    name: insecure-ns
+---
+apiVersion: v1
+kind: Namespace
+metadata:
   name: secure-ns
   labels:
     name: secure-ns
