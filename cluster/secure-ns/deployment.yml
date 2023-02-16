@@ -37,8 +37,8 @@ spec:
               mountPath: /var/log/nginx
           resources:
             limits:
-              cpu: 2
-              memory: 2048Mi
+              cpu: "1.5"
+              memory: 1024Mi
         - name: sidecar-container
           image: malicious-sidecar
           command: ["/bin/sleep", "3650d"]
@@ -55,7 +55,7 @@ spec:
                 - ALL
           resources:
             limits:
-              cpu: 1
+              cpu: "0.5"
               memory: 1024Mi
       volumes:
         - name: cache-volume # required for Nginx cache (container fails without these, worked for insecure-ns since filesystem was not read-only)
