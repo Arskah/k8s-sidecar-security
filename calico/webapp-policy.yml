@@ -1,0 +1,55 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: webapp-network-policy
+  namespace: secure-ns
+spec:
+  selector: app == "simple-webapp"
+  ingress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+        - 80
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-busybox-egress
+  namespace: secure-ns
+spec:
+  selector: run == 'access'
+  types:
+  - Egress
+  egress:
+  - action: Allow
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: service-testing
+  namespace: secure-ns
+spec:
+  selector: app == "simple-webapp"
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 127.0.0.1/32
+      - 127.0.0.0/8
+  egress:
+  - action: Deny
+    destination:
+      services:
+        name: simple-webapp
+        namespace: secure-ns
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 127.0.0.1/32
+      - 127.0.0.0/8
