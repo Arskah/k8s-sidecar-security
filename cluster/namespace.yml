@@ -12,6 +12,8 @@ metadata:
   labels:
     name: secure-ns
     # We are setting these to our _desired_ `enforce` level.
+    # restricted does not allow apiserver liveness probe from minikube => restart loop
+    # Caused by anynomous-auth
     pod-security.kubernetes.io/enforce: baseline
     # pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/enforce-version: v1.26
