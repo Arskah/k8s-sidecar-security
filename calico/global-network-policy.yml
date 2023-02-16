@@ -2,56 +2,65 @@
 apiVersion: projectcalico.org/v3
 kind: GlobalNetworkPolicy
 metadata:
-  name: deny-app-policy
-spec:
-  namespaceSelector: has(projectcalico.org/name) && projectcalico.org/name not in {"kube-system", "calico-system", "calico-apiserver"}
-  types:
-  - Ingress
-  - Egress
-  egress:
-  # Allow all namespaces to communicate to DNS pods
-  - action: Allow
-    protocol: UDP
-    destination:
-      selector: 'k8s-app == "kube-dns"'
-      ports:
-      - 53
-  ingress:
-  # This rule allows coredns to forward dns requests back
-  # through the worker node in the case where your gateway is
-  # colocated with the Kubernetes master
-  - action: Allow
-    protocol: UDP
-    destination:
-      ports:
-      - 53
----
-# Allow ping on all nodes
-apiVersion: projectcalico.org/v3
-kind: GlobalNetworkPolicy
-metadata:
-  name: allow-ping
+  name: gnp-default-policy
 spec:
   selector: has(kubernetes-host)
   ingress:
-    - action: Allow
-      protocol: ICMP
+  # Allow ping
+  - action: Allow
+    protocol: ICMP
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - 53
+      - 179 # BGP access
+  - action: Allow
+    protocol: UDP
+    destination:
+      ports:
+      - 53
+      - 67 # DHCP
+      - 68 # DHCP
+  egress:
+  # Allow ping
+  - action: Allow
+    protocol: ICMP
+  - action: Allow
+    protocol: TCP
+    destination:
+      # selector: has(kubernetes-host)
+      ports:
+      - 53
+      - 179 # BGP access
+  - action: Allow
+    protocol: UDP
+    destination:
+      # # Allow all namespaces to communicate to DNS pods
+      # selector: 'k8s-app == "kube-dns"'
+      ports:
+      - 53
+      - 67 # DHCP
+      - 68 # DHCP
 ---
 # Control plane
 apiVersion: projectcalico.org/v3
 kind: GlobalNetworkPolicy
 metadata:
-  name: ingress-k8s-control-plane
+  name: gnp-k8s-control-plane
 spec:
   selector: has(node-role.kubernetes.io/control-plane)
+  order: 1
   ingress:
   # This rule allows ingress to the Kubernetes API server.
   - action: Allow
     protocol: TCP
     destination:
       ports:
-      # - 6443
+      - 2381 # etcd metrics (liveness?)
       - 8443 # Minikube defaults to this port
+      - 10257 # controller liveness
+      - 10259 # scheduler liveness
   # This rule is required in multi-master clusters where etcd pods are colocated with the masters.
   # Allow the etcd pods on the masters to communicate with each other. 2380 is the etcd peer port.
   # This rule also allows the masters to access the kubelet API on other masters (including itself).
@@ -61,20 +70,22 @@ spec:
       selector: has(node-role.kubernetes.io/control-plane)
     destination:
       ports:
-      - 2380
-      - 10250
-  # This rule allows all traffic to localhost.
-  # - action: Allow
-  #   destination:
-  #     nets:
-  #     - 127.0.0.0/8
+      - 2379 # etcd client comms
+      - 2380 # etcd peer comms
+      - 10250 # kubelet
+  # This rule allows all traffic to localhost. Used for liveness probes...
+  - action: Allow
+    destination:
+      nets:
+      - 127.0.0.1/32
 ---
 apiVersion: projectcalico.org/v3
 kind: GlobalNetworkPolicy
 metadata:
-  name: ingress-k8s-workers
+  name: gnp-k8s-workers
 spec:
   selector: has(node-role.kubernetes.io/worker)
+  order: 1
   ingress:
   # Kubelet API
   - action: Allow
@@ -84,9 +95,25 @@ spec:
       selector: has(node-role.kubernetes.io/control-plane)
     destination:
       ports:
-      - 10250
-  # # Allow all traffic to localhost.
-  # - action: Allow
-  #   destination:
-  #     nets:
-  #     - 127.0.0.0/8
+      - 10250 # Kubelet
+  # Allow all traffic to localhost.
+  - action: Allow
+    destination:
+      nets:
+      - 127.0.0.1/32
+
+# ---
+# # Allow access to Kubernetes DNS for the entire cluster
+# apiVersion: projectcalico.org/v3
+# kind: GlobalNetworkPolicy
+# metadata:
+#   name: allow-kube-dns
+# spec:
+#   selector: all()
+#   order: 2
+#   egress:
+#     - action: Allow
+#       destination:
+#         services:
+#           name: kube-dns
+#           namespace: kube-system
