@@ -127,6 +127,7 @@ spec:
   ports:
   - port: 80
     protocol: TCP
+    nodePort: 30001
   selector:
     app: simple-webapp
   type: NodePort
