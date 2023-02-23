@@ -1,0 +1,15 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: webapp-network-policy
+  namespace: secure-ns
+spec:
+  endpointSelector:
+    matchLabels:
+      app: simple-webapp
+  egress:
+    - toFQDNs:
+      - matchName: "google.com" # Allow access to google
+      # - matchName: "*.google.com" # Subdomains, this does not allow main domain itself
+    - toEntities:
+      - kube-apiserver
