@@ -30,7 +30,7 @@ spec:
         - --dport
         - "80"
         - -j
-        - DROP
+        - REJECT
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
