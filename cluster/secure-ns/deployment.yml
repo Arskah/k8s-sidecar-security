@@ -21,12 +21,16 @@ spec:
         command:
         - iptables
         args:
+        - -t
+        - filter
         - -A
         - INPUT
         - -i
         - lo
         - -p
         - tcp
+        - -s
+        - "127.0.0.1/32"
         - --dport
         - "80"
         - -j
