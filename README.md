@@ -1,5 +1,7 @@
 # Attacking cluster from malicious sidecar
 
+<https://docs.google.com/document/d/1o0N-eOt_ryY2TnjHHzR0ecKc53juZvuCcSAypYIXgVw/edit?usp=sharing>
+
 ## Minikube setup
 
 - Install minikube
