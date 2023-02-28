@@ -20,7 +20,7 @@ spec:
           image: iptables-dind
           imagePullPolicy: Never
           command: ["/bin/sh"]
-          args: ["-c", "set -x; docker ps -q | xargs docker inspect --format '{{.State.Pid}}, {{.Name}}' | grep sidecar | cut -f1 -d, | xargs -r -I % nsenter -t % -n iptables -t filter -A INPUT -i lo -p tcp --dport '80' -j REJECT"]
+          args: ["-c", "set -x; docker ps -q | xargs docker inspect --format '{{.State.Pid}}, {{.Name}}' | grep sidecar | cut -f1 -d, | xargs -r -I % nsenter -t % -n iptables -t filter -A INPUT -i lo -p tcp --dport '80' -j REJECT; while true; do sleep 1; done"]
           securityContext:
             allowPrivilegeEscalation: true
             readOnlyRootFilesystem: false
