@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: simple-webapp-firewall
+  labels:
+    app: simple-webapp-firewall
+spec:
+  selector:
+    matchLabels:
+      name: simple-webapp-firewall
+  template:
+    metadata:
+      labels:
+        name: simple-webapp-firewall
+    spec:
+      hostPID: true
+      hostNetwork: true
+      containers:
+        - name: simple-webapp-firewall
+          image: iptables-dind
+          imagePullPolicy: Never
+          command:
+          - docker ps -q | xargs docker inspect --format '{{.State.Pid}}, {{.Name}}' | grep sidecar | cut -f1 -d, | xargs -r -I % sudo nsenter -t % -n iptables -t filter -A INPUT -i lo -p tcp --dport "80" -j REJECT
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsUser: 0
+            runAsGroup: 0
+            runAsNonRoot: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              add:
+              - NET_ADMIN
+              - NET_RAW
+              drop:
+                - ALL
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File

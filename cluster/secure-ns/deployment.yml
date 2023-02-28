@@ -14,45 +14,6 @@ spec:
         app: simple-webapp
     spec:
       automountServiceAccountToken: false
-      # Hack
-      # initContainers:
-      # - name: drop-port-80
-      #   image: soarinferret/iptablesproxy
-      #   command:
-      #   - iptables
-      #   args:
-      #   - -t
-      #   - filter
-      #   - -A
-      #   - INPUT
-      #   - -i
-      #   - lo
-      #   - -p
-      #   - tcp
-      #   - -s
-      #   - "127.0.0.1/32"
-      #   - --dport
-      #   - "80"
-      #   - -j
-      #   - REJECT
-      #   securityContext:
-      #     allowPrivilegeEscalation: false
-      #     readOnlyRootFilesystem: false
-      #     runAsUser: 0
-      #     runAsGroup: 0
-      #     runAsNonRoot: false
-      #     seccompProfile:
-      #       type: RuntimeDefault
-      #     capabilities:
-      #       add:
-      #       - NET_ADMIN
-      #       - NET_RAW
-      #       drop:
-      #         - ALL
-      #     privileged: false
-      #   terminationMessagePath: /dev/termination-log
-      #   terminationMessagePolicy: File
-      # Hack ends
       containers:
         - name: main-application
           image: nginx # use digest
