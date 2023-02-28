@@ -9,7 +9,7 @@ RUN echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https
 
 # Install deps
 RUN apt update
-RUN apt install -y net-tools nmap ncat kubectl etcd iputils-ping
+RUN apt install -y net-tools nmap ncat kubectl etcd iputils-ping iproute2
 
 # kubeletctl
 RUN curl -LO https://github.com/cyberark/kubeletctl/releases/download/v1.9/kubeletctl_linux_amd64 && chmod a+x ./kubeletctl_linux_amd64 && mv ./kubeletctl_linux_amd64 /usr/local/bin/kubeletctl
