@@ -18,7 +18,7 @@ spec:
         - name: xdp-test
           image: go-ebpf
           imagePullPolicy: Never
-          command: ["go", "run", "./xdp"]
+          command: ["go", "run", "./xdp-fw"]
           args: ["lo"]
           securityContext:
             allowPrivilegeEscalation: true
