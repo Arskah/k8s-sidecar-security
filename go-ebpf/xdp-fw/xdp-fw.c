@@ -73,8 +73,9 @@ int xdp_prog_func(struct xdp_md *ctx)
     // so increment it atomically using an LLVM built-in.
     __sync_fetch_and_add(pkt_count, 1);
   }
+  return XDP_DROP;
 
 done:
   // Try changing this to XDP_DROP and see what happens!
-  return XDP_PASS;
+  return XDP_DROP;
 }
