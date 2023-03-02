@@ -7,8 +7,12 @@ RUN curl -LO https://go.dev/dl/go1.20.1.linux-amd64.tar.gz
 RUN rm -rf /usr/local/go && tar -C /usr/local -xzf go1.20.1.linux-amd64.tar.gz
 ENV PATH="${PATH}:/usr/local/go/bin"
 
-RUN git clone https://github.com/cilium/ebpf.git
+# RUN git clone https://github.com/cilium/ebpf.git
+# WORKDIR /ebpf/examples
+# COPY xdp-fw/ xdp-fw/
+# COPY ebpf/examples/xdp/ xdp/
+COPY ./ebpf /ebpf
+
 WORKDIR /ebpf/examples
-COPY xdp-fw/ xdp-fw/
 
 # ENTRYPOINT [ "go run ./ebpf/examples/xdp" ]

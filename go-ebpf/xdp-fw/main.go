@@ -8,6 +8,8 @@
 // This example depends on bpf_link, available in Linux kernel version 5.7 or newer.
 package main
 
+import "C"
+
 import (
   "fmt"
   "log"
