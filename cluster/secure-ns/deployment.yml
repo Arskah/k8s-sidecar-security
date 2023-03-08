@@ -15,24 +15,29 @@ spec:
     spec:
       automountServiceAccountToken: false
       containers:
-        - name: xdp-test
-          image: go-ebpf
-          imagePullPolicy: Never
-          command: ["go", "run", "./xdp-fw"]
-          args: ["lo"]
-          securityContext:
-            allowPrivilegeEscalation: true
-            readOnlyRootFilesystem: false
-            runAsUser: 0
-            runAsGroup: 0
-            runAsNonRoot: false
-            seccompProfile:
-              type: RuntimeDefault
-            capabilities:
-              drop:
-                - ALL
-              add:
-                - CAP_SYS_ADMIN # CAP_BPF is unknown, outdated version?
+        # - name: xdp-test
+        #   image: go-ebpf
+        #   command: ["go", "run", "./xdp-fw"]
+        #   args: ["lo"]
+        #   # image: docker-ebpf
+        #   # command: ["./sockfilter"]
+        #   # image: python-ebpf
+        #   # command: ["python3"]
+        #   # args: ["hello_world.py"]
+        #   imagePullPolicy: Never
+        #   securityContext:
+        #     allowPrivilegeEscalation: true
+        #     readOnlyRootFilesystem: false
+        #     runAsUser: 0
+        #     runAsGroup: 0
+        #     runAsNonRoot: false
+        #     seccompProfile:
+        #       type: RuntimeDefault
+        #     capabilities:
+        #       drop:
+        #         - ALL
+        #       add:
+        #         - CAP_SYS_ADMIN # CAP_BPF is unknown, outdated version?
         - name: main-application
           image: nginx # use digest
           securityContext:
