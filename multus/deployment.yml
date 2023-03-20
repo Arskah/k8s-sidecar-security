@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multus-app
+  namespace: multus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multus-app
+  template:
+    metadata:
+      labels:
+        app: multus-app
+      annotations:
+        k8s.v1.cni.cncf.io/networks: macvlan-conf
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: main
+          image: malicious-sidecar
+          command: [
+            "/bin/bash", "-c",
+            'while true; do printf "HTTP/1.1 200 OK\n\n%s" "<html><head><title>Hello world</title></head><body><h1>Hello world</h1></body></html>" | netcat -l 8888; done'
+          ]
+          imagePullPolicy: Never # Trying to pull local image causes ImagePullBackOff
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsUser: 1001
+            runAsGroup: 1001
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            limits:
+              cpu: "1.5"
+              memory: 1024Mi
+        - name: sidecar-container
+          image: malicious-sidecar
+          command: ["/bin/sleep", "3650d"]
+          imagePullPolicy: Never # Trying to pull local image causes ImagePullBackOff
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 2000
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            limits:
+              cpu: "0.5"
+              memory: 1024Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multus-app
+  namespace: multus
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    nodePort: 31001
+  selector:
+    app: multus-app
+  type: NodePort
