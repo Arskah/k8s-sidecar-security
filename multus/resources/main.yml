@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: multus-app
+  name: multus-app-main
   namespace: multus
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: multus-app
+      app: multus-app-main
   template:
     metadata:
       labels:
-        app: multus-app
+        app: multus-app-main
       annotations:
         k8s.v1.cni.cncf.io/networks: macvlan-conf
     spec:
@@ -39,29 +39,11 @@ spec:
             limits:
               cpu: "1.5"
               memory: 1024Mi
-        - name: sidecar-container
-          image: malicious-sidecar
-          command: ["/bin/sleep", "3650d"]
-          imagePullPolicy: Never # Trying to pull local image causes ImagePullBackOff
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            runAsUser: 2000
-            runAsNonRoot: true
-            seccompProfile:
-              type: RuntimeDefault
-            capabilities:
-              drop:
-                - ALL
-          resources:
-            limits:
-              cpu: "0.5"
-              memory: 1024Mi
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: multus-app
+  name: multus-app-main
   namespace: multus
 spec:
   ports:
@@ -69,5 +51,5 @@ spec:
     protocol: TCP
     nodePort: 31001
   selector:
-    app: multus-app
+    app: multus-app-main
   type: NodePort
