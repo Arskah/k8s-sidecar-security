@@ -15,6 +15,15 @@ spec:
       annotations:
         k8s.v1.cni.cncf.io/networks: macvlan-conf
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - minikube-m02
       automountServiceAccountToken: false
       containers:
         - name: sidecar
