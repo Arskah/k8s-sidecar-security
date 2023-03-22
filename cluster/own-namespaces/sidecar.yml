@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: side-ns
+  labels:
+    name: side-ns
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/enforce-version: v1.26
+    pod-security.kubernetes.io/audit-version: v1.26
+    pod-security.kubernetes.io/warn-version: v1.26
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-webapp-sidecar
+  namespace: side-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simple-webapp-sidecar
+  template:
+    metadata:
+      labels:
+        app: simple-webapp-sidecar
+    spec:
+      affinity:
+        # # Could not manage to get this working on minikube, even kubernetes.io examples fail
+        # podAffinity:
+        # # requiredDuringSchedulingRequiredDuringExecution # not yet supported
+        #   requiredDuringSchedulingIgnoredDuringExecution:
+        #     - labelSelector:
+        #         matchExpressions:
+        #           - key: app
+        #             operator: In
+        #             values:
+        #               - simple-webapp-main
+        #       topologyKey: "kubernetes.io/hostname"
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - minikube-m02
+      automountServiceAccountToken: false
+      containers:
+        - name: sidecar-container
+          image: malicious-sidecar
+          command: ["/bin/sleep", "3650d"]
+          imagePullPolicy: Never # Trying to pull local image causes ImagePullBackOff
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 2000
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            limits:
+              cpu: "0.5"
+              memory: 1024Mi
