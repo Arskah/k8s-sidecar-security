@@ -71,15 +71,23 @@ spec:
             readOnlyRootFilesystem: true
             runAsUser: 2000
             runAsNonRoot: true
+            # runAsUser: 0
+            # runAsNonRoot: false
             seccompProfile:
               type: RuntimeDefault
             capabilities:
               drop:
                 - ALL
+              # add:
+              #   - NET_ADMIN
           resources:
             limits:
               cpu: "0.5"
               memory: 1024Mi
+          # lifecycle:
+          #   postStart:
+          #     exec:
+          #       command: ["/bin/sh", "-c", "iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT; iptables --new-chain sidecar_user; iptables -A OUTPUT -m owner --uid-owner $(id -u) -j sidecar_user; iptables -A sidecar_user -j REJECT"]
       volumes:
         - name: cache-volume # required for Nginx cache (container fails without these, worked for insecure-ns since filesystem was not read-only)
           emptyDir: {}
