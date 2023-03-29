@@ -14,6 +14,8 @@ RUN apt install -y net-tools nmap ncat kubectl etcd iputils-ping iproute2
 # kubeletctl
 RUN curl -LO https://github.com/cyberark/kubeletctl/releases/download/v1.9/kubeletctl_linux_amd64 && chmod a+x ./kubeletctl_linux_amd64 && mv ./kubeletctl_linux_amd64 /usr/local/bin/kubeletctl
 
+RUN apt install -y iptables
+
 # Point to the internal API server hostname
 RUN echo 'export APISERVER=https://kubernetes.default.svc' >> root/.bashrc
 # Path to ServiceAccount token
