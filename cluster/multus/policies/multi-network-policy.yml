@@ -1,40 +1,30 @@
 apiVersion: k8s.cni.cncf.io/v1beta1
 kind: MultiNetworkPolicy
 metadata:
-  name: test-network-policy-1
+  name: deny-by-default
   namespace: multus
   annotations:
     k8s.v1.cni.cncf.io/policy-for: macvlan-conf
 spec:
-  podSelector:
-    matchLabels:
-      app: multus-app-sidecar
-  policyTypes:
-    - Egress
-  egress:
-    - to:
-      - ipBlock:
-          cidr: 192.168.1.1/24
+  podSelector: {}
+  ingress: []
 ---
 apiVersion: k8s.cni.cncf.io/v1beta1
 kind: MultiNetworkPolicy
 metadata:
-  name: test-network-policy-2
+  name: allow-from-sidecar
   namespace: multus
   annotations:
     k8s.v1.cni.cncf.io/policy-for: macvlan-conf
 spec:
   podSelector:
     matchLabels:
-      app: multus-app-sidecar
-  policyTypes:
-    - Egress
-  egress:
-    - to:
-      - ipBlock:
-          cidr: 192.168.1.0/24
-          except:
-            - 192.168.1.208/32
-      ports:
-        - protocol: TCP
-          port: 8888
+      app: multus-app-main
+  ingress:
+  - ports:
+    - protocol: TCP
+      port: 8888
+    from:
+    - podSelector:
+        matchLabels:
+          app: multus-app-sidecar
