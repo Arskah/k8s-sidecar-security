@@ -24,5 +24,3 @@ minikube image load malicious-sidecar
 
 cilium status
 # cilium connectivity test
-
-kubectl apply -f cluster/

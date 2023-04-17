@@ -13,5 +13,3 @@ minikube image load malicious-sidecar
 
 # calicoctl --allow-version-mismatch patch kubecontrollersconfiguration default --patch='{"spec": {"controllers": {"node": {"hostEndpoint": {"autoCreate": "Enabled"}}}}}'
 # calicoctl --allow-version-mismatch apply -f calico/global-network-policy.yml
-
-kubectl apply -f cluster/
