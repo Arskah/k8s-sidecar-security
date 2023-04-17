@@ -13,7 +13,11 @@ spec:
       labels:
         app: multus-app-main
       annotations:
-        k8s.v1.cni.cncf.io/networks: ipvlan-conf
+        k8s.v1.cni.cncf.io/networks: '[{
+            "name": "bridge-static",
+            "interface": "br0",
+            "ips": [ "192.168.1.201/24" ]
+          }]'
     spec:
       affinity:
         nodeAffinity:

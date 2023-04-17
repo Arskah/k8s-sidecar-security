@@ -112,3 +112,22 @@ spec:
         "gateway": "192.168.1.1"
       }
     }'
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: bridge-static
+  namespace: multus
+spec:
+  config: '{
+      "cniVersion": "0.3.1",
+      "name": "bridge-static",
+      "capabilities": { "ips": true },
+      "type": "bridge",
+      "bridge": "mybr0",
+      "isDefaultGateway": true,
+      "ipMasq": true,
+      "ipam": {
+        "type": "static"
+      }
+    }'
