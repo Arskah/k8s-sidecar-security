@@ -8,8 +8,5 @@ spec:
     matchLabels:
       app: multus-app-sidecar
   policyTypes:
+    - Ingress
     - Egress
-  egress:
-    - to:
-        - podSelector:
-            matchLabels: {}
