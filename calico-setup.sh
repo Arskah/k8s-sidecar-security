@@ -2,7 +2,7 @@
 
 set -x
 
-minikube start --nodes 2 --cni=calico
+minikube start --nodes 2 --cni=calico --container-runtime=containerd
 # kubectl create clusterrolebinding cluster-system-anonymous --clusterrole=cluster-admin --user=system:anonymous
 
 kubectl get node -l '!node-role.kubernetes.io/control-plane' -o custom-columns=NAME:.metadata.name | tail -n +2 | xargs -I{} kubectl label nodes {} kubernetes-worker= node-role.kubernetes.io/worker=
