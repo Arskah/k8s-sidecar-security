@@ -1,13 +1,14 @@
 apiVersion: k8s.cni.cncf.io/v1beta1
 kind: MultiNetworkPolicy
 metadata:
-  name: deny-by-default
+  name: default-deny-ingress
   namespace: multus
   annotations:
     k8s.v1.cni.cncf.io/policy-for: macvlan-static
 spec:
   podSelector: {}
-  ingress: []
+  policyTypes:
+    - Ingress
 ---
 apiVersion: k8s.cni.cncf.io/v1beta1
 kind: MultiNetworkPolicy
@@ -21,10 +22,10 @@ spec:
     matchLabels:
       app: multus-app-main
   ingress:
-  - ports:
-    - protocol: TCP
-      port: 8888
-    from:
-    - podSelector:
-        matchLabels:
-          app: multus-app-sidecar
+    - from:
+        - podSelector:
+            matchLabels:
+              app: multus-app-sidecar
+      ports:
+        - protocol: TCP
+          port: 8888
