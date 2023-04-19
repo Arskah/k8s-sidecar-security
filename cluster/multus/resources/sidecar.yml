@@ -13,7 +13,11 @@ spec:
       labels:
         app: multus-app-sidecar
       annotations:
-        k8s.v1.cni.cncf.io/networks: default/macvlan-conf
+        k8s.v1.cni.cncf.io/networks: '[{
+            "name": "macvlan-static",
+            "interface": "br0",
+            "ips": [ "192.168.1.202/24" ]
+          }]'
     spec:
       affinity:
         nodeAffinity:

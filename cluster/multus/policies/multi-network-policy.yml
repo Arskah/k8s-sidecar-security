@@ -4,7 +4,7 @@ metadata:
   name: deny-by-default
   namespace: multus
   annotations:
-    k8s.v1.cni.cncf.io/policy-for: default/macvlan-conf
+    k8s.v1.cni.cncf.io/policy-for: macvlan-static
 spec:
   podSelector: {}
   ingress: []
@@ -15,7 +15,7 @@ metadata:
   name: allow-from-sidecar
   namespace: multus
   annotations:
-    k8s.v1.cni.cncf.io/policy-for: default/macvlan-conf
+    k8s.v1.cni.cncf.io/policy-for: macvlan-static
 spec:
   podSelector:
     matchLabels:
