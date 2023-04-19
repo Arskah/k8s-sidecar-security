@@ -35,16 +35,15 @@ spec:
           command: ["/bin/sleep", "3650d"]
           imagePullPolicy: Never # Trying to pull local image causes ImagePullBackOff
           securityContext:
-            privileged: true
-            allowPrivilegeEscalation: true
-            readOnlyRootFilesystem: false
-            runAsUser: 0
-            runAsNonRoot: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 2000
+            runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
-            # capabilities:
-            #   drop:
-            #     - ALL
+            capabilities:
+              drop:
+                - ALL
           resources:
             limits:
               cpu: "0.5"
