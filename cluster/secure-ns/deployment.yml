@@ -39,7 +39,10 @@ spec:
         #       add:
         #         - CAP_SYS_ADMIN # CAP_BPF is unknown, outdated version?
         - name: main-application
-          image: nginx # use digest
+          image: nginxinc/nginx-unprivileged # use digest
+          ports:
+            - containerPort: 8080
+              protocol: TCP
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -56,6 +59,8 @@ spec:
               mountPath: /var/cache/nginx
             - name: pid-volume
               mountPath: /var/run
+            - name: tmp
+              mountPath: /tmp
             - name: shared-logs
               mountPath: /var/log/nginx
           resources:
@@ -94,6 +99,8 @@ spec:
         - name: pid-volume
         - name: shared-logs
           emptyDir: {}
+        - name: tmp
+          emptyDir: {}
         - name: secrets
           secret:
             secretName: simple-webapp-secret
@@ -123,7 +130,7 @@ metadata:
   namespace: secure-ns
 spec:
   ports:
-  - port: 80
+  - port: 8080
     protocol: TCP
     nodePort: 30001
   selector:
