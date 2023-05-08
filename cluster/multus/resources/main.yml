@@ -38,16 +38,14 @@ spec:
           ]
           imagePullPolicy: Never # Trying to pull local image causes ImagePullBackOff
           securityContext:
-            privileged: true
-            allowPrivilegeEscalation: true
+            privileged: false
+            allowPrivilegeEscalation: false
             readOnlyRootFilesystem: false
-            runAsUser: 0
-            runAsNonRoot: false
+            runAsUser: 1001
+            runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
             capabilities:
-              add:
-                - NET_ADMIN
               drop:
                 - ALL
           resources:
