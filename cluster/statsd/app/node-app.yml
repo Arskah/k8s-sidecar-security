@@ -1,0 +1,154 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-app
+  namespace: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-app
+  template:
+    metadata:
+      labels:
+        app: node-app
+      annotations:
+        k8s.v1.cni.cncf.io/networks: '[{
+            "name": "localhost-replacement",
+            "interface": "br0",
+            "ips": [ "192.168.1.201/24" ]
+          }]'
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - minikube-m02
+      automountServiceAccountToken: false
+      containers:
+        - name: node-app
+          image: node-app
+          imagePullPolicy: Never # Trying to pull local image causes ImagePullBackOff
+          command: [ "node" ]
+          args: [ "index.js" ]
+          ports:
+            - containerPort: 8888
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: true
+            readOnlyRootFilesystem: false
+            runAsUser: 0
+            runAsGroup: 0
+            runAsNonRoot: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+              drop:
+                - ALL
+          resources:
+            limits:
+              cpu: "1"
+              memory: 1024Mi
+
+      initContainers:
+      - name: allow-redirect
+        image: soarinferret/iptablesproxy
+        command:
+        - sysctl
+        args:
+        - -w
+        - net.ipv4.conf.all.route_localnet=1
+        securityContext:
+          allowPrivilegeEscalation: true
+          readOnlyRootFilesystem: false
+          runAsUser: 0
+          runAsGroup: 0
+          runAsNonRoot: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            add:
+            - NET_ADMIN
+            - NET_RAW
+            drop:
+              - ALL
+          privileged: true
+      - name: redirect-localhost
+        image: soarinferret/iptablesproxy
+        command:
+        - iptables
+        args:
+        - -t
+        - nat
+        - -A
+        - OUTPUT
+        - -p
+        - udp
+        - --dport
+        - "8125"
+        - -j
+        - DNAT
+        - --to-destination
+        - "192.168.1.202:8125"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsUser: 0
+          runAsGroup: 0
+          runAsNonRoot: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            add:
+            - NET_ADMIN
+            - NET_RAW
+            drop:
+              - ALL
+          privileged: false
+      - name: redirect-localhost-masquerade
+        image: soarinferret/iptablesproxy
+        command:
+        - iptables
+        args:
+        - -t
+        - nat
+        - -A
+        - POSTROUTING
+        - -j
+        - MASQUERADE
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsUser: 0
+          runAsGroup: 0
+          runAsNonRoot: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            add:
+            - NET_ADMIN
+            - NET_RAW
+            drop:
+              - ALL
+          privileged: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-app
+  namespace: app
+spec:
+  ports:
+  - port: 8888
+    protocol: TCP
+    nodePort: 30001
+  selector:
+    app: node-app
+  type: NodePort

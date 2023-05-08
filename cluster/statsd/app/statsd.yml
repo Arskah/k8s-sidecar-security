@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-app-statsd
+  namespace: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-app-statsd
+  template:
+    metadata:
+      labels:
+        app: node-app-statsd
+      annotations:
+        k8s.v1.cni.cncf.io/networks: '[{
+            "name": "localhost-replacement",
+            "interface": "br0",
+            "ips": [ "192.168.1.202/24" ]
+          }]'
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - minikube-m02
+      automountServiceAccountToken: false
+      containers:
+        - name: statsd
+          # image: statsd/statsd
+          image: hypnza/statsd_dumpmessages
+          ports:
+            - containerPort: 8125
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 101
+            runAsGroup: 101
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            limits:
+              cpu: "1"
+              memory: 256Mi
