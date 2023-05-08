@@ -90,7 +90,7 @@ spec:
         - -A
         - OUTPUT
         - -p
-        - udp
+        - ALL
         - --dport
         - "8125"
         - -j

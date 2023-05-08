@@ -13,6 +13,6 @@ sudo crictl inspect $CID | grep pid # Get PID
 
 ```bash
 sudo nsenter -t $PID -n sysctl -w net.ipv4.conf.all.route_localnet=1
-sudo nsenter -t $PID -n iptables -t nat -A OUTPUT -p udp --dport 8125 -j DNAT --to-destination 192.168.1.202:8125
+sudo nsenter -t $PID -n iptables -t nat -A OUTPUT -p ALL --dport 8125 -j DNAT --to-destination 192.168.1.202:8125
 sudo nsenter -t $PID -n iptables -t nat -A POSTROUTING -j MASQUERADE
 ```
