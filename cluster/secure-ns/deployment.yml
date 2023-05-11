@@ -13,6 +13,7 @@ spec:
       labels:
         app: simple-webapp
     spec:
+      serviceAccountName: simple-webapp-sa
       automountServiceAccountToken: false
       containers:
         # - name: xdp-test
@@ -63,6 +64,8 @@ spec:
               mountPath: /tmp
             - name: shared-logs
               mountPath: /var/log/nginx
+            - name: service-account
+              mountPath: /var/run/secrets/kubernetes.io/serviceaccount
           resources:
             limits:
               cpu: "1.5"
@@ -104,7 +107,9 @@ spec:
         - name: secrets
           secret:
             secretName: simple-webapp-secret
-status: {}
+        - name: service-account
+          secret:
+            secretName: simple-webapp-sa-secret
 ---
 apiVersion: v1
 kind: ConfigMap
