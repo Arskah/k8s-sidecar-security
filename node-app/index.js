@@ -1,8 +1,8 @@
 const Koa = require('koa');
 const app = new Koa();
 
-const StatsD = require('node-statsd'),
-client = new StatsD();
+const StatsD = require('node-statsd');
+const client = new StatsD();
 
 const logMessage = async (ctx, next) => {
   await next();

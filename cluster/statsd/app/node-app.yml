@@ -47,9 +47,6 @@ spec:
             seccompProfile:
               type: RuntimeDefault
             capabilities:
-              add:
-                - NET_ADMIN
-                - NET_RAW
               drop:
                 - ALL
           resources:
