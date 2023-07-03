@@ -11,7 +11,7 @@ metadata:
     pod-security.kubernetes.io/audit-version: v1.26
     pod-security.kubernetes.io/warn-version: v1.26
 ---
-apiVersion: "k8s.cni.cncf.io/v1"
+apiVersion: k8s.cni.cncf.io/v1
 kind: NetworkAttachmentDefinition
 metadata:
   name: bridge-static
@@ -30,7 +30,7 @@ spec:
       }
     }'
 ---
-apiVersion: "k8s.cni.cncf.io/v1"
+apiVersion: k8s.cni.cncf.io/v1
 kind: NetworkAttachmentDefinition
 metadata:
   name: macvlan-static

@@ -121,8 +121,7 @@ spec:
       serviceAccountName: multi-networkpolicy
       containers:
       - name: multi-networkpolicy
-        # image: localhost:6000/multus-networkpolicy-iptables:e2e
-        image: ghcr.io/k8snetworkplumbingwg/multi-networkpolicy-iptables:snapshot-amd64
+        image: ghcr.io/k8snetworkplumbingwg/multi-networkpolicy-iptables:snapshot-amd64@sha256:ffa11e42bb4f5bb31997f76ddbcd049cc70f9b0f232cd65de18c0190aa622f8e
         imagePullPolicy: Always
         command: ["/usr/bin/multi-networkpolicy-iptables"]
         args:
