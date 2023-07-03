@@ -19,15 +19,6 @@ spec:
             "ips": [ "192.168.1.202/24" ]
           }]'
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - minikube-m02
       automountServiceAccountToken: false
       containers:
         - name: sidecar
