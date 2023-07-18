@@ -26,7 +26,9 @@ const sendStats = (async (ctx, next) => {
   await next();
   const rt = ctx.response.get('X-Response-Time');
   console.log(`rt: ${ctx.method} ${ctx.url} - ${rt}`);
-  client.timing('response_time', rt);
+
+  const ms = Number.parseInt(rt.replace('ms', ''), 10);
+  client.timing('response_time', ms);
   client.increment('response_counter');
 });
 
