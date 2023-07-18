@@ -39,7 +39,11 @@ app.on("error", errorHandler)
 app.use(router.routes())
 app.use(router.allowedMethods());
 
+setInterval(() => {
+  client.increment("heartbeat")
+}, 1000)
 
 app.listen(8888, () => {
   console.log("Server start")
+  client.increment("server_start")
 });
