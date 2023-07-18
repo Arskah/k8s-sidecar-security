@@ -1,0 +1,22 @@
+# https://docs.cilium.io/en/stable/network/kubernetes/local-redirect-policy/#local-redirect-policy
+# cilium config set enable-local-redirect-policy true
+# Restart operator to create CRD: https://github.com/cilium/cilium-cli/issues/946
+apiVersion: cilium.io/v2
+kind: CiliumLocalRedirectPolicy
+metadata:
+  name: "lrp-addr"
+  namespace: secure-ns
+spec:
+  redirectFrontend:
+    addressMatcher:
+      ip: "127.0.0.1"
+      toPorts:
+        - port: "80"
+          protocol: TCP
+  redirectBackend:
+    localEndpointSelector:
+      matchLabels:
+        k8s-app: no-exist
+    toPorts:
+      - port: "81"
+        protocol: TCP

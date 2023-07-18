@@ -1,0 +1,12 @@
+{
+  "capabilities": {
+    "bandwidth": true,
+    "portMappings": true
+  },
+  "cniVersion": "0.3.1",
+  "logLevel": "verbose",
+  "name": "multus-cni-network",
+  "clusterNetwork": "/host/etc/cni/net.d/10-calico.conflist",
+  "type": "multus-shim",
+  "socketDir": "/host/run/multus/"
+}

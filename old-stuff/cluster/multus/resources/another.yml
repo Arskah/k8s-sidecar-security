@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multus-app-another
+  namespace: multus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multus-app-another
+  template:
+    metadata:
+      labels:
+        app: multus-app-another
+      annotations:
+        k8s.v1.cni.cncf.io/networks: '[{
+            "name": "macvlan-static",
+            "interface": "br0",
+            "ips": [ "192.168.1.203/24" ]
+          }]'
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: another
+          image: malicious-sidecar
+          command: [
+            "/bin/bash", "-c",
+            'while true; do printf "HTTP/1.1 200 OK\n\n%s" "<html><head><title>Another world</title></head><body><h1>Another world</h1></body></html>" | netcat -l 8888; done'
+          ]
+          imagePullPolicy: Never # Trying to pull local image causes ImagePullBackOff
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsUser: 1001
+            runAsGroup: 1001
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            limits:
+              cpu: "1.5"
+              memory: 1024Mi

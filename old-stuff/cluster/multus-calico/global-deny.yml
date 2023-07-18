@@ -1,0 +1,11 @@
+# Default deny
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: default-deny
+spec:
+  # selector: projectcalico.org/namespace != "kube-system"
+  selector: all()
+  types:
+  - Ingress
+  - Egress

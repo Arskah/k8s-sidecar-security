@@ -15,30 +15,27 @@ spec:
     spec:
       serviceAccountName: simple-webapp-sa
       automountServiceAccountToken: false
+      initContainers:
+        - name: iptables
+          image: iptables-dind
+          imagePullPolicy: Never # Trying to pull local image causes ImagePullBackOff
+          command: ["/bin/sh"]
+          args: ["./iptables.sh"]
+          securityContext:
+            allowPrivilegeEscalation: true
+            readOnlyRootFilesystem: false
+            runAsUser: 0
+            runAsGroup: 0
+            runAsNonRoot: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - NET_ADMIN
+                - NET_RAW
       containers:
-        # - name: xdp-test
-        #   image: go-ebpf
-        #   command: ["go", "run", "./xdp-fw"]
-        #   args: ["lo"]
-        #   # image: docker-ebpf
-        #   # command: ["./sockfilter"]
-        #   # image: python-ebpf
-        #   # command: ["python3"]
-        #   # args: ["hello_world.py"]
-        #   imagePullPolicy: Never
-        #   securityContext:
-        #     allowPrivilegeEscalation: true
-        #     readOnlyRootFilesystem: false
-        #     runAsUser: 0
-        #     runAsGroup: 0
-        #     runAsNonRoot: false
-        #     seccompProfile:
-        #       type: RuntimeDefault
-        #     capabilities:
-        #       drop:
-        #         - ALL
-        #       add:
-        #         - CAP_SYS_ADMIN # CAP_BPF is unknown, outdated version?
         - name: main-application
           image: nginxinc/nginx-unprivileged # use digest
           ports:
@@ -88,6 +85,24 @@ spec:
                 - ALL
               # add:
               #   - NET_ADMIN
+          resources:
+            limits:
+              cpu: "0.5"
+              memory: 1024Mi
+        - name: debug-container
+          image: malicious-sidecar
+          command: ["/bin/sleep", "3650d"]
+          imagePullPolicy: Never # Trying to pull local image causes ImagePullBackOff
+          securityContext:
+            allowPrivilegeEscalation: true
+            readOnlyRootFilesystem: false
+            runAsUser: 0
+            runAsNonRoot: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              add:
+                - ALL
           resources:
             limits:
               cpu: "0.5"
