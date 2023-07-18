@@ -30,11 +30,11 @@ spec:
             - containerPort: 8888
               protocol: TCP
           securityContext:
-            allowPrivilegeEscalation: true
-            readOnlyRootFilesystem: false
-            runAsUser: 0
-            runAsGroup: 0
-            runAsNonRoot: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
             capabilities:
@@ -44,88 +44,6 @@ spec:
             limits:
               cpu: "1"
               memory: 1024Mi
-
-      initContainers:
-      - name: allow-redirect
-        image: soarinferret/iptablesproxy
-        command:
-        - sysctl
-        args:
-        - -w
-        - net.ipv4.conf.all.route_localnet=1
-        securityContext:
-          allowPrivilegeEscalation: true
-          readOnlyRootFilesystem: false
-          runAsUser: 0
-          runAsGroup: 0
-          runAsNonRoot: false
-          seccompProfile:
-            type: RuntimeDefault
-          capabilities:
-            add:
-            - NET_ADMIN
-            - NET_RAW
-            drop:
-              - ALL
-          privileged: true
-      - name: redirect-localhost
-        image: soarinferret/iptablesproxy
-        command:
-        - iptables
-        args:
-        - -t
-        - nat
-        - -A
-        - OUTPUT
-        - -p
-        - ALL
-        - --dport
-        - "8125"
-        - -j
-        - DNAT
-        - --to-destination
-        - "192.168.1.202:8125"
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
-          runAsUser: 0
-          runAsGroup: 0
-          runAsNonRoot: false
-          seccompProfile:
-            type: RuntimeDefault
-          capabilities:
-            add:
-            - NET_ADMIN
-            - NET_RAW
-            drop:
-              - ALL
-          privileged: false
-      - name: redirect-localhost-masquerade
-        image: soarinferret/iptablesproxy
-        command:
-        - iptables
-        args:
-        - -t
-        - nat
-        - -A
-        - POSTROUTING
-        - -j
-        - MASQUERADE
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
-          runAsUser: 0
-          runAsGroup: 0
-          runAsNonRoot: false
-          seccompProfile:
-            type: RuntimeDefault
-          capabilities:
-            add:
-            - NET_ADMIN
-            - NET_RAW
-            drop:
-              - ALL
-          privileged: false
 ---
 apiVersion: v1
 kind: Service

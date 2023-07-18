@@ -4,11 +4,11 @@
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
 -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
--A INPUT -p tcp -m tcp --dport 8080 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 8888 -j ACCEPT
 -A INPUT -p tcp -m tcp --dport 8125 -j ACCEPT
 -A INPUT -j DROP
 -A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
--A OUTPUT -d 127.0.0.1/32 -p tcp -m owner --uid-owner 1000 -m tcp --dport 8080 -j ACCEPT
+-A OUTPUT -d 127.0.0.1/32 -p tcp -m owner --uid-owner 1000 -m tcp --dport 8888 -j ACCEPT
 -A OUTPUT -d 127.0.0.1/32 -p tcp -m owner --uid-owner 1000 -m tcp --dport 8125 -j ACCEPT
 -A OUTPUT -d 127.0.0.1/32 -p tcp -m owner --uid-owner 2000 -m tcp --dport 8125 -j ACCEPT
 -A OUTPUT -j REJECT --reject-with icmp-port-unreachable

@@ -12,3 +12,5 @@ RUN rm -f crictl-$CRICTL_VERSION-linux-amd64.tar.gz
 COPY ./iptables.sh iptables.sh
 COPY ./iptables-file.sh iptables-file.sh
 COPY ./iptables.rules iptables.rules
+
+COPY ./localhost-redirect.sh localhost-redirect.sh
