@@ -48,6 +48,7 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 
 setInterval(() => {
+  console.log('heartbeat');
   client.increment('heartbeat');
 }, 1000);
 
