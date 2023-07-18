@@ -1,5 +1,6 @@
+/* eslint-disable no-console */
 const Koa = require('koa');
-const logger = require('koa-logger')
+const logger = require('koa-logger');
 const Router = require('koa-router');
 const StatsD = require('node-statsd');
 
@@ -12,7 +13,7 @@ const setResponseTimeCtx = async (ctx, next) => {
   await next();
   const ms = Date.now() - start;
   ctx.set('X-Response-Time', `${ms}ms`);
-}
+};
 
 const sendStats = (async (ctx, next) => {
   await next();
@@ -23,27 +24,27 @@ const sendStats = (async (ctx, next) => {
 });
 
 const errorHandler = (err, ctx) => {
-  console.error("Server error: ", err, ctx)
-}
+  console.error('Server error: ', err, ctx);
+};
 
-const requestHandler = async ctx => {
+const requestHandler = async (ctx) => {
   ctx.body = 'Hello World';
-}
+};
 
-router.get("/", requestHandler)
+router.get('/', requestHandler);
 
-app.use(logger())
+app.use(logger());
 app.use(sendStats);
 app.use(setResponseTimeCtx);
-app.on("error", errorHandler)
-app.use(router.routes())
+app.on('error', errorHandler);
+app.use(router.routes());
 app.use(router.allowedMethods());
 
 setInterval(() => {
-  client.increment("heartbeat")
-}, 1000)
+  client.increment('heartbeat');
+}, 1000);
 
 app.listen(8888, () => {
-  console.log("Server start")
-  client.increment("server_start")
+  console.log('Server start');
+  client.increment('server_start');
 });
