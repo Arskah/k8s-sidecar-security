@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-app
+  namespace: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-app
+  template:
+    metadata:
+      labels:
+        app: node-app
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: node-app
+          image: node-app
+          imagePullPolicy: Never
+          command: [ "node" ]
+          args: [ "index.js" ]
+          ports:
+            - containerPort: 8888
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            limits:
+              cpu: "1"
+              memory: 1024Mi
+        - name: statsd
+          image: hypnza/statsd_dumpmessages
+          ports:
+            - containerPort: 8125
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 2000
+            runAsGroup: 2000
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            limits:
+              cpu: "1"
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-app
+  namespace: app
+spec:
+  ports:
+  - port: 8888
+    protocol: TCP
+    nodePort: 30001
+  selector:
+    app: node-app
+  type: NodePort
