@@ -2,11 +2,18 @@
 const Koa = require('koa');
 const logger = require('koa-logger');
 const Router = require('koa-router');
-const StatsD = require('node-statsd');
+const StatsD = require('hot-shots');
 
 const app = new Koa();
 const router = new Router();
-const client = new StatsD();
+
+const client = new StatsD({
+  port: 8125,
+  // globalTags: { env: process.env.NODE_ENV },
+  errorHandler(error) {
+    console.log('Socket errors caught here: ', error);
+  },
+});
 
 const setResponseTimeCtx = async (ctx, next) => {
   const start = Date.now();
