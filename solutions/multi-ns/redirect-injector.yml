@@ -36,8 +36,6 @@ spec:
               drop:
                 - ALL
             privileged: true
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
           volumeMounts:
           - name: containerd-socket
             mountPath: /var/run
