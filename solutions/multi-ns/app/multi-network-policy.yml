@@ -21,6 +21,8 @@ spec:
   podSelector:
     matchLabels:
       app: node-app-statsd
+  policyTypes:
+    - Ingress
   ingress:
     - from:
         - podSelector:
