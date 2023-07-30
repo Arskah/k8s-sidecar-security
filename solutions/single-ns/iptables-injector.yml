@@ -14,7 +14,6 @@ spec:
         name: iptables-injector
     spec:
       hostPID: true
-      hostNetwork: true
       containers:
         - name: iptables-injector
           image: iptables-injector

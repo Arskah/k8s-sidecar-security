@@ -14,7 +14,6 @@ spec:
         name: simple-webapp-firewall
     spec:
       hostPID: true
-      hostNetwork: true
       containers:
         - name: simple-webapp-firewall
           image: iptables-dind
