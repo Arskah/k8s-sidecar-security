@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: simple-kubernetes-webhook
+  namespace: default
+spec:
+  ports:
+    - port: 443
+      protocol: TCP
+      targetPort: 443
+  selector:
+    app: simple-kubernetes-webhook
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-kubernetes-webhook
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: simple-kubernetes-webhook
+  template:
+    metadata:
+      labels:
+        app: simple-kubernetes-webhook
+    spec:
+      containers:
+        - image: simple-kubernetes-webhook:latest
+          name: simple-kubernetes-webhook
+          imagePullPolicy: Never
+          env:
+            - name: TLS
+              value: "true"
+            - name: LOG_LEVEL
+              value: "trace"
+            - name: LOG_JSON
+              value: "false"
+          volumeMounts:
+            - name: tls
+              mountPath: "/etc/admission-webhook/tls"
+      volumes:
+        - name: tls
+          secret:
+            secretName: simple-kubernetes-webhook-tls
