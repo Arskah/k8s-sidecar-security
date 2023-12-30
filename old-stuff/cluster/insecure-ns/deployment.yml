@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: simple-webapp
-  namespace: insecure-ns
+  namespace: app
 spec:
   replicas: 1
   selector:
@@ -50,7 +50,7 @@ data:
   CONFIG_OBJECT: CONFIG_MAP_OBJECT
 metadata:
   name: simple-webapp-config-map
-  namespace: insecure-ns
+  namespace: app
 ---
 apiVersion: v1
 kind: Secret
@@ -58,14 +58,14 @@ data:
   secret: eyAicGFzc3dvcmQiOiAibm90LXNhZmUtd2l0aC1iYXNlNjQifQ==
 metadata:
   name: simple-webapp-secret
-  namespace: insecure-ns
+  namespace: app
 type: Opaque
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: simple-webapp
-  namespace: insecure-ns
+  namespace: app
 spec:
   ports:
   - port: 80
