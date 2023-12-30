@@ -6,8 +6,12 @@ SIDECAR_PORT=8125
 
 set -x
 
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -P OUTPUT DROP
+
 # Ingress rules
-iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 iptables -A INPUT -p tcp --dport $APP_PORT -j ACCEPT
 iptables -A INPUT -p udp --dport $SIDECAR_PORT -j ACCEPT
 iptables -A INPUT -j DROP
