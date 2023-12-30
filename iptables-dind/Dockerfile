@@ -1,4 +1,4 @@
-FROM --platform=amd64 docker
+FROM docker
 
 RUN apk update && apk upgrade
 RUN apk add ip6tables iptables

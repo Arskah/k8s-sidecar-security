@@ -1,4 +1,4 @@
-FROM --platform=amd64 malicious-sidecar
+FROM malicious-sidecar
 
 COPY meta-entrypoint.sh ./
 RUN chmod +x ./meta-entrypoint.sh
