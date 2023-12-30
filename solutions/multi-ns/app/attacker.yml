@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: attacker
+  namespace: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: attacker
+  template:
+    metadata:
+      labels:
+        app: attacker
+      annotations:
+        k8s.v1.cni.cncf.io/networks: '[{
+            "name": "localhost-replacement",
+            "interface": "br0",
+            "ips": [ "192.168.1.204/24" ]
+          }]'
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: attacker
+          image: malicious-sidecar
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 2000
+            runAsGroup: 2000
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            limits:
+              cpu: "1"
+              memory: 256Mi

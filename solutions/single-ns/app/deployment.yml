@@ -57,6 +57,25 @@ spec:
             limits:
               cpu: "1"
               memory: 256Mi
+        - name: attacker
+          image: malicious-sidecar
+          command: ["/bin/sleep", "3650d"]
+          imagePullPolicy: Never
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 2001
+            runAsGroup: 2001
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            limits:
+              cpu: "1"
+              memory: 256Mi
 ---
 apiVersion: v1
 kind: Service
