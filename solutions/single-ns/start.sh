@@ -2,8 +2,7 @@
 
 set -x
 
-minikube start --nodes 2 --cni=cilium --container-runtime=containerd
-# minikube start --nodes 2 --cni=calico --container-runtime=containerd
+minikube start --nodes 2 --cni=cilium
 
 minikube image load node-app
 minikube image load iptables-injector
